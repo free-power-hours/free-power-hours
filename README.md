@@ -16,7 +16,7 @@ Electricity on the Austrian day-ahead market is becoming more volatile and negat
 | Trappl Paul | Data Storage & Processing (MongoDB, Spark pipeline) |
 | Yilmaz Tarik | Analytics & Presentation (ML model, visualizations, story) |
 
-*GitHub Repository:*  https://github.com/free-power-house/free-power-house
+*GitHub Repository:*  https://github.com/free-power-house/free-power-hours
 
 ## Planned Data Sources
 
