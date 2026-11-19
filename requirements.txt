@@ -1,0 +1,16 @@
+# Phase 1 - Data Source Layer (pinned versions, as required by the assessment)
+requests==2.34.2
+pandas==3.1.1
+numpy==2.5.5
+matplotlib==3.11.2
+python-dotenv==1.2.4
+confluent-kafka==2.16.2   # Kafka producer (librdkafka)
+
+# Notebook tooling (local, non-Docker setup)
+jupyterlab==4.6.6
+ipykernel==7.4.0
+nbconvert==7.17.2
+
+# Phase 2 - add when needed:
+# pyspark (Structured Streaming + spark-sql-kafka connector), pymongo, entsoe-py, holidays, pyarrow, scikit-learn
+# (pyspark comes with the Docker image quay.io/jupyter/pyspark-notebook:spark-3.5.3)

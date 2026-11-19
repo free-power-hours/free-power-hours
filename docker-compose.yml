@@ -1,0 +1,91 @@
+# Infrastructure for the whole team (single source of truth).
+#
+#   docker compose up -d                     -> MongoDB, Kafka, Kafka UI (for local Python, "Option B")
+#   VS Code: Dev Containers: Reopen in Container -> same services + the "app" dev container
+#   docker compose --profile jupyter up -d   -> additionally JupyterLab with PySpark (no VS Code needed)
+#
+# Host ports:  MongoDB localhost:27017 | Kafka localhost:9094 | Kafka UI http://localhost:8080
+# In-network:  mongo:27017             | kafka:9092
+name: free-power-hours
+
+services:
+  mongo:
+    image: mongo:7.0
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  kafka:
+    # Single-node Kafka in KRaft mode (no ZooKeeper needed).
+    image: apache/kafka:3.9.1
+    restart: unless-stopped
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      # PLAINTEXT = inside the Docker network, EXTERNAL = from the host
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      # Keep all messages forever: Kafka is our replayable raw log.
+      KAFKA_LOG_RETENTION_MS: -1
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: free-power-hours
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      - kafka
+
+  # VS Code Dev Container workspace (started by Dev Containers, see .devcontainer/devcontainer.json)
+  app:
+    profiles: ["devcontainer"]
+    image: mcr.microsoft.com/devcontainers/python:1-3.12-bookworm
+    command: sleep infinity
+    volumes:
+      - .:/workspaces/free-power-hours:cached
+    environment:
+      # Container-network addresses; they take precedence over .env (python-dotenv does not override)
+      MONGO_URI: mongodb://mongo:27017
+      KAFKA_BOOTSTRAP: kafka:9092
+    depends_on:
+      - mongo
+      - kafka
+
+  # Alternative for team members without VS Code
+  jupyter:
+    profiles: ["jupyter"]
+    image: quay.io/jupyter/pyspark-notebook:spark-3.5.3
+    ports:
+      - "8888:8888"
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      KAFKA_BOOTSTRAP: kafka:9092
+      JUPYTER_TOKEN: fph
+    volumes:
+      - .:/home/jovyan/work
+    working_dir: /home/jovyan/work
+    command: bash -c "pip install -q -r requirements.txt && start-notebook.py"
+    depends_on:
+      - mongo
+      - kafka
+
+volumes:
+  mongo-data:
+  kafka-data:
