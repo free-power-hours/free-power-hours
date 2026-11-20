@@ -11,6 +11,9 @@ jupyterlab==4.6.6
 ipykernel==7.4.0
 nbconvert==7.17.2
 
+# Phase 2
+pyspark==3.5.3             # Spark MLlib + Structured Streaming (needs Java 17)
+
 # Phase 2 - add when needed:
-# pyspark (Structured Streaming + spark-sql-kafka connector), pymongo, entsoe-py, holidays, pyarrow, scikit-learn
+# pymongo, entsoe-py, holidays, pyarrow, scikit-learn
 # (pyspark comes with the Docker image quay.io/jupyter/pyspark-notebook:spark-3.5.3)

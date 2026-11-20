@@ -64,6 +64,9 @@ OPENMETEO_URLS = {
     # Live forecast (up to 16 days ahead) - for the "tomorrow's cheap hours" demo
     "forecast": "https://api.open-meteo.com/v1/forecast",
 }
+# Days of live forecast we request (API max 16). 7 = one week for the live prediction chart;
+# beyond ~3-4 days weather forecasts become noticeably less reliable.
+OPENMETEO_FORECAST_DAYS = 7
 
 # Hourly variables we request. Units are Open-Meteo defaults.
 WEATHER_VARIABLES = [

@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
-from .config import LOCATIONS, OPENMETEO_URLS, RAW_DIR, WEATHER_VARIABLES
+from .config import LOCATIONS, OPENMETEO_FORECAST_DAYS, OPENMETEO_URLS, RAW_DIR, WEATHER_VARIABLES
 from .http import get_json
 
 CACHE_DIR = RAW_DIR / "openmeteo"
@@ -44,7 +44,7 @@ def fetch(kind: str, start: str | None = None, end: str | None = None,
     """One raw API call, wrapped with metadata. `kind` is a key of OPENMETEO_URLS."""
     params = build_params(start, end, locations, variables)
     if kind == "forecast":
-        params["forecast_days"] = 3
+        params["forecast_days"] = OPENMETEO_FORECAST_DAYS
     payload = get_json(OPENMETEO_URLS[kind], params=params)
     if isinstance(payload, dict):  # single location -> API returns an object, not a list
         payload = [payload]

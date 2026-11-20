@@ -70,6 +70,31 @@ Example:
  "source": "openmeteo_archive", "ingested_at": "2026-11-19T13:28:12+00:00"}
 ```
 
+### `predictions.cheap_hours`
+
+| | |
+|---|---|
+| Key | `ts` (e.g. `2026-11-21T12:00:00+00:00`) |
+| Producer | `python -m src.predict` (Spark Structured Streaming, model from `models/cheap_hours`) |
+
+One message per forecast hour, re-sent for every new forecast poll. Consumers keep the **latest** message per key (or all of them, to see how the prediction changed).
+
+| Field | Type | Unit | Description |
+|---|---|---|---|
+| `ts` | string (timestamp) | UTC | Hour the prediction applies to |
+| `p_negative` | float | 0–1 | Predicted probability that the day-ahead price is ≤ 0 €/MWh |
+| `is_negative` | bool | | `p_negative >= threshold` |
+| `threshold` | float | | Decision threshold used (default 0.3) |
+| `model` | string | | Model directory name |
+| `forecast_issued_at` | string (timestamp) | UTC | `issued_at` of the newest forecast used |
+| `scored_at` | string (timestamp) | UTC | When the prediction was made |
+
+Example:
+```json
+{"ts": "2026-11-21T10:00:00+00:00", "p_negative": 0.0598, "is_negative": false, "threshold": 0.3,
+ "model": "cheap_hours", "forecast_issued_at": "2026-11-20T10:22:41+00:00", "scored_at": "2026-11-20T10:23:41+00:00"}
+```
+
 ## Consumer sketch (Spark Structured Streaming)
 
 ```python

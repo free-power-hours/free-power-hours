@@ -36,7 +36,7 @@ Reference for the Data Source Layer (`src/ingest/`). All endpoints, locations an
   |---|---|---|---|
   | `archive` | `archive-api.open-meteo.com/v1/archive` | Actual past weather (ERA5 reanalysis), lags ~5 days | Exploration, correlations |
   | `historical_forecast` | `historical-forecast-api.open-meteo.com/v1/forecast` | What weather models *forecast* back then (≈ 2022 onward) | **ML training** – the model must learn from forecasts, as it will in real use |
-  | `forecast` | `api.open-meteo.com/v1/forecast` | Live forecast (we request 3 days) | "Tomorrow's cheap hours" demo |
+  | `forecast` | `api.open-meteo.com/v1/forecast` | Live forecast (we request 7 days, `OPENMETEO_FORECAST_DAYS`) | "Tomorrow's cheap hours" demo |
 
 - **Parameters:** `latitude`, `longitude` (comma-separated: all 10 locations in one request), `hourly=<variables>`, `start_date`, `end_date` (inclusive), `timezone=UTC`.
 - **Response:** one object per location, in the order requested. The `hourly` block is column-oriented (one list per variable) and maps directly to a DataFrame.
